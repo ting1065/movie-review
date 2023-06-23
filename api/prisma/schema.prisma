@@ -1,0 +1,42 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model MovieReview {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId  Int
+  movie     Movie    @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  movieId   Int
+  rating    Int
+  content   String   @db.Text
+}
+
+model Movie {
+  id           Int           @id @default(autoincrement())
+  movieName    String        @db.VarChar(255)
+  producedYear Int
+  director     String        @db.VarChar(255)
+  posterPath   String
+  tmdbId       Int           @unique
+  reviews      MovieReview[]
+}
+
+model User {
+  id               Int           @id @default(autoincrement())
+  email            String        @unique
+  auth0Id          String        @unique @default("")
+  name             String        @default("member")
+  movieReviews     MovieReview[]
+  selfIntroduction String?
+}
