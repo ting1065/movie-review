@@ -10,7 +10,7 @@ import ReviewDetail from './routes/review-detail';
 import ReviewEdit from './routes/review-edit';
 import ReviewDelete from './routes/review-delete';
 import UserProfile from './routes/user-profile';
-import UserProfileEdit from './routes/user-profile-edit';
+import UserProfileEdit, {action as editProfileAction } from './routes/user-profile-edit';
 import { Auth0Provider, useAuth0 } from "@auth0/auth0-react";
 import { AuthTokenProvider } from "./AuthTokenContext";
 import VerifyUser from "./routes/verify-user";
@@ -72,8 +72,9 @@ const router = createBrowserRouter([
             element: <RequireAuth><UserProfile /></RequireAuth>,
           },
           {
-            path: "profile/:userId/edit",
+            path: "profile/edit",
             element: <RequireAuth><UserProfileEdit /></RequireAuth>,
+            action: editProfileAction,
           },
           {
             path: "verify-user",

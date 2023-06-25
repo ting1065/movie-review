@@ -114,6 +114,7 @@ export async function getReviewsFromTmdb(tmdbId) {
 
 //get a user info from database using access token
 export async function getUserFromDB(accessToken) {
+  if (!accessToken) return;
   try {
     const response = await fetch(`${process.env.REACT_APP_API_URL}/user`, {
       headers: {
@@ -194,4 +195,32 @@ export async function getReviewsFromOtherUsers(accessToken, tmdbId) {
     console.log(error);
   }
 
+}
+
+//update a user's name or self-introduction in database
+export async function updateUserInDB(accessToken, name, introduction) {
+  if (!accessToken) return;
+
+  try {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/user`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({
+        name: name,
+        introduction: introduction,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const updatedUser = await response.json();
+    return updatedUser;
+  } catch (error) {
+    console.log(error);
+  }
 }

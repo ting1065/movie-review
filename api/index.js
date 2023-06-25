@@ -74,17 +74,21 @@ app.get("/user", requireAuth, async (req, res) => {
 });
 
 // update a user
-app.put("/user/:userId", async (req, res) => {
-  const { userId } = req.params;
-  const { name, selfIntroduction } = req.body;
+app.put("/user", requireAuth, async (req, res) => {
+  const auth0Id = req.auth.payload.sub;
+
+  const { name, introduction } = req.body;
+
+  console.log(auth0Id, name, introduction);
+
   try {
     const user = await prisma.user.update({
       where: {
-        id: parseInt(userId),
+        auth0Id,
       },
       data: {
-        name,
-        selfIntroduction,
+        name: name,
+        selfIntroduction: introduction,
       },
     });
     res.status(200).json(user);
