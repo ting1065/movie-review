@@ -1,7 +1,16 @@
+import * as dotenv from 'dotenv'
+dotenv.config()
 import express from "express";
 import pkg from "@prisma/client";
 import morgan from "morgan";
 import cors from "cors";
+import { auth } from  'express-oauth2-jwt-bearer'
+
+const requireAuth = auth({
+  audience: process.env.AUTH0_AUDIENCE,
+  issuerBaseURL: process.env.AUTH0_ISSUER,
+  tokenSigningAlg: 'RS256'
+});
 
 const app = express();
 
@@ -18,28 +27,44 @@ app.get("/ping", (req, res) => {
   res.send("pong");
 });
 
-// add a new user
-app.post("/user", async (req, res) => {
-  const {email} = req.body;
+// verify user status, if not registered in our database we will create it
+app.post("/verify-user", requireAuth, async (req, res) => {
+  const auth0Id = req.auth.payload.sub;
+  const email = req.auth.payload[`${process.env.AUTH0_AUDIENCE}/email`];
+
   try {
-    const user = await prisma.user.create({
-      data: {
-        email,
+    const user = await prisma.user.findUnique({
+      where: {
+        auth0Id,
       },
     });
-    res.status(200).json(user);
+  
+    if (user) {
+      res.status(200).json(user);
+    } else {
+      const newUser = await prisma.user.create({
+        data: {
+          email,
+          auth0Id,
+        },
+      });
+  
+      res.status(200).json(newUser);
+    }
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: error.message});
   }
 });
 
 // get a user
-app.get("/user/:userId", async (req, res) => {
-  const { userId } = req.params;
+app.get("/user", requireAuth, async (req, res) => {
+  const auth0Id = req.auth.payload.sub;
+
   try {
     const user = await prisma.user.findUnique({
       where: {
-        id: parseInt(userId),
+        auth0Id,
       },
     });
     res.status(200).json(user);
@@ -86,14 +111,12 @@ app.delete("/user/:userId", async (req, res) => {
 
 // add a movie
 app.post("/movie", async (req, res) => {
-  const { movieName, producedYear, director, tmdbId, posterPath } = req.body;
+  const { movieName, tmdbId, posterPath } = req.body;
 
   try {
     const movie = await prisma.movie.create({
       data: {
         movieName,
-        producedYear,
-        director,
         tmdbId,
         posterPath,
       },
@@ -191,38 +214,90 @@ app.post("/review", async (req, res) => {
   }
 });
 
-// get a review by tmdbId and authorId
-app.get("/review/:tmdbId/:authorId", async (req, res) => {
-  const { tmdbId, authorId } = req.params;
-
-  const movie = await prisma.movie.findUnique({
-    where: {
-      tmdbId: parseInt(tmdbId),
-    },
-  });
-
-  const author = await prisma.user.findUnique({
-    where: {
-      id: parseInt(authorId),
-    },
-  });
-
-  if (!movie || !author) {
-    res.status(404).json({ error: "movie or author not found" });
-    return;
-  }
-
+// get a user's reveiw of a single movie from database
+app.get("/review/:tmdbId", requireAuth, async (req, res) => {
+  const auth0Id = req.auth.payload.sub;
+  const tmdbId = req.params.tmdbId;
+  
   try {
-    const review = await prisma.movieReview.findFirst({
+
+    const author = await prisma.user.findUnique({
       where: {
-        authorId: parseInt(authorId),
-        movieId: movie.id,
+        auth0Id,
+      },
+      include: {
+        movieReviews: true,
       },
     });
+
+    if (!author) {
+      res.status(404);
+      return;
+    }
+
+    const movie = await prisma.movie.findUnique({
+      where: {
+        tmdbId: parseInt(tmdbId),
+      },
+    });
+
+    if (!movie) {
+      res.status(404);
+      return;
+    }
+
+    const review = author.movieReviews.find((review) => review.movieId === movie.id);
+
     res.status(200).json(review);
+
   } catch (error) {
     res.status(500).json({ error: error.message});
   }
+});
+
+// get a single movie's reviews from other users
+app.get("/reviews/:tmdbId", requireAuth, async (req, res) => {
+  const auth0Id = req.auth.payload.sub;
+  const tmdbId = req.params.tmdbId;
+
+  try {
+    const author = await prisma.user.findUnique({
+      where: {
+        auth0Id,
+      },
+    });
+
+    if (!author) {
+      res.status(404);
+      return;
+    }
+
+    const movie = await prisma.movie.findUnique({
+      where: {
+        tmdbId: parseInt(tmdbId),
+      },
+      include: {
+        reviews:{
+          include: {
+            author: true,
+          },
+        },
+      },
+    });
+
+    if (!movie) {
+      res.status(404);
+      return;
+    }
+
+    const reviews = movie.reviews.filter((review) => review.authorId !== author.id);
+
+    res.status(200).json(reviews);
+
+  } catch (error) {
+    res.status(500).json({ error: error.message});
+  }
+
 });
 
   // get all reviews by authorId
