@@ -1,11 +1,12 @@
-import React from "react";
+import React from 'react'
 import { useLoaderData } from "react-router-dom";
 import MovieBrief from "../components/MovieBrief";
 
-export default function Movies() {
-  const { popularMovies } = useLoaderData();
-
-  const elements = popularMovies
+export default function MoviesSearched() {
+  
+  const { searchedMovies, searchName } = useLoaderData();
+  
+  const elements = searchedMovies
     .filter((movie) => movie.posterPath !== null)
     .map((movie) => (
       <MovieBrief
@@ -16,5 +17,10 @@ export default function Movies() {
       />
     ));
 
-  return <div>{elements}</div>;
+  return (
+  <div>
+    <h2>Search results for {searchName}</h2>
+    {elements}
+  </div>
+  );
 }

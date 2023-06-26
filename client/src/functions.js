@@ -83,6 +83,31 @@ export async function getRecommendedMovies(tmdbId) {
   }
 }
 
+//get searched movies using searched name from tmdb api
+export async function getSearchedMovies(searchedName) {
+  if (!searchedName) return;
+  try {
+    const response = await fetch(
+      `https://api.themoviedb.org/3/search/movie?query=${searchedName}&include_adult=false&language=en-US&page=1`,
+      {
+        headers: {
+          accept: "application/json",
+          Authorization: `Bearer ${tmdbToken}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const movies = data.results.map((movie) => extractMovieDataBrief(movie));
+    return movies;
+  } catch (error) {
+    console.log(error);
+  }
+}
 
 //get a single movie using tmdb id from tmdb api
 export async function getMovieFromTmdb(tmdbId) {

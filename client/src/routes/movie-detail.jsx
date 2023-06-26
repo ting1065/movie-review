@@ -1,17 +1,13 @@
 import React, { useEffect, useState, useLayoutEffect } from "react";
-import {
-  getReviewFromDB,
-  getReviewsFromOtherUsers,
-} from "../functions";
+import { getReviewFromDB, getReviewsFromOtherUsers } from "../functions";
 import { useLoaderData } from "react-router-dom";
 import { useAuthToken } from "../AuthTokenContext";
 import { useAuth0 } from "@auth0/auth0-react";
 import AddReviewButton from "../components/AddReviewButton";
 import EditReviewButton from "../components/EditReviewButton";
 
-
 export default function MovieDetail() {
-  const { tmdbId, movie, tmdbReviews} = useLoaderData();
+  const { tmdbId, movie, tmdbReviews } = useLoaderData();
   const { accessToken } = useAuthToken();
   const [userReview, setUserReview] = useState(null);
   const [reviewsFromOthers, setReviewsFromOthers] = useState([]);
@@ -96,13 +92,19 @@ export default function MovieDetail() {
 
       <div>
         <h2>reviews from tmdb</h2>
-        {tmdbReviews.map((review) => (
-          <div key={review.id}>
-            <p>author: {review.author}</p>
-            <p>rating: {review.rating ? review.rating : "n/a"}</p>
-            <p>content: {review.content}</p>
+        {tmdbReviews.length !== 0 ? (
+          tmdbReviews.map((review) => (
+            <div key={review.id}>
+              <p>author: {review.author}</p>
+              <p>rating: {review.rating ? review.rating : "n/a"}</p>
+              <p>content: {review.content}</p>
+            </div>
+          ))
+        ) : (
+          <div>
+            <p>no review on this movie yet</p>
           </div>
-        ))}
+        )}
       </div>
     </>
   );

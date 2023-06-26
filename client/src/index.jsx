@@ -1,31 +1,38 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import Root from './routes/root.jsx';
-import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
-import ErrorPage from './routes/error-page.jsx';
-import Movies from './routes/movies.jsx';
-import MovieDetail from './routes/movie-detail';
-import ReviewDetail from './routes/review-detail';
-import ReviewAdd, {action as addReviewAction} from './routes/review-add';
-import ReviewEdit, { action as editReviewAction } from './routes/review-edit';
-import { action as reviewDeleteAction } from './routes/review-delete';
-import UserProfile from './routes/user-profile';
-import UserProfileEdit, {action as editProfileAction } from './routes/user-profile-edit';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import "./index.css";
+import Root, { action as searchAction } from "./routes/root.jsx";
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Navigate,
+} from "react-router-dom";
+import ErrorPage from "./routes/error-page.jsx";
+import Movies from "./routes/movies.jsx";
+import MovieDetail from "./routes/movie-detail";
+import ReviewDetail from "./routes/review-detail";
+import ReviewAdd, { action as addReviewAction } from "./routes/review-add";
+import ReviewEdit, { action as editReviewAction } from "./routes/review-edit";
+import { action as reviewDeleteAction } from "./routes/review-delete";
+import UserProfile from "./routes/user-profile";
+import UserProfileEdit, {
+  action as editProfileAction,
+} from "./routes/user-profile-edit";
 import { Auth0Provider, useAuth0 } from "@auth0/auth0-react";
 import { AuthTokenProvider } from "./AuthTokenContext";
 import VerifyUser from "./routes/verify-user";
-import AuthDebugger from './routes/auth-debugger';
+import AuthDebugger from "./routes/auth-debugger";
 import {
   getMovieFromTmdb,
   getReviewsFromTmdb,
   getPopularMovies,
+  getSearchedMovies,
 } from "./functions";
-import MoviesReviewed from './routes/movies-reviewed';
-import MoviesRecommended from './routes/movies-recommended';
+import MoviesReviewed from "./routes/movies-reviewed";
+import MoviesRecommended from "./routes/movies-recommended";
+import MoviesSearched from "./routes/movies-searched";
 
 const requestedScope = "profile email";
-
 
 function RequireAuth({ children }) {
   const { isAuthenticated, isLoading } = useAuth0();
@@ -38,7 +45,7 @@ function RequireAuth({ children }) {
 }
 
 //reviews loader
-async function reviewsLoader({params}) {
+async function reviewsLoader({ params }) {
   const tmdbId = params.tmdbId;
   const movie = await getMovieFromTmdb(tmdbId);
   const tmdbReviews = await getReviewsFromTmdb(tmdbId);
@@ -51,11 +58,19 @@ async function moviesLoader() {
   return { popularMovies };
 }
 
+//searched movies loader
+async function searchedMoviesLoader({ params }) {
+  const searchName = params.searchName;
+  const searchedMovies = await getSearchedMovies(searchName);
+  return { searchedMovies, searchName };
+}
+
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Root />,
     errorElement: <ErrorPage />,
+    action: searchAction,
     children: [
       {
         errorElement: <></>,
@@ -69,12 +84,26 @@ const router = createBrowserRouter([
           {
             //reviewed movies
             path: "movies/reviewed",
-            element: <RequireAuth><MoviesReviewed /></RequireAuth>,
+            element: (
+              <RequireAuth>
+                <MoviesReviewed />
+              </RequireAuth>
+            ),
           },
           {
             //recommended movies
             path: "movies/recommended",
-            element: <RequireAuth><MoviesRecommended /></RequireAuth>,
+            element: (
+              <RequireAuth>
+                <MoviesRecommended />
+              </RequireAuth>
+            ),
+          },
+          {
+            //searched movies
+            path: "search/:searchName",
+            element: <MoviesSearched />,
+            loader: searchedMoviesLoader,
           },
           {
             path: "movie/:tmdbId",
@@ -83,44 +112,70 @@ const router = createBrowserRouter([
           },
           {
             path: "review/:reviewId",
-            element: <RequireAuth><ReviewDetail /></RequireAuth>,
+            element: (
+              <RequireAuth>
+                <ReviewDetail />
+              </RequireAuth>
+            ),
           },
           {
             path: "review/add/:tmdbId",
-            element: <RequireAuth><ReviewAdd /></RequireAuth>,
+            element: (
+              <RequireAuth>
+                <ReviewAdd />
+              </RequireAuth>
+            ),
             loader: reviewsLoader,
             action: addReviewAction,
           },
           {
             path: "review/edit/:tmdbId",
-            element: <RequireAuth><ReviewEdit /></RequireAuth>,
+            element: (
+              <RequireAuth>
+                <ReviewEdit />
+              </RequireAuth>
+            ),
             loader: reviewsLoader,
             action: editReviewAction,
-            
           },
           {
             path: "review/edit/:tmdbId/delete",
             action: reviewDeleteAction,
-            errorElement: <div>an error happened</div>
+            errorElement: <div>an error happened</div>,
           },
           {
             path: "profile",
-            element: <RequireAuth><UserProfile /></RequireAuth>,
+            element: (
+              <RequireAuth>
+                <UserProfile />
+              </RequireAuth>
+            ),
           },
           {
             path: "profile/edit",
-            element: <RequireAuth><UserProfileEdit /></RequireAuth>,
+            element: (
+              <RequireAuth>
+                <UserProfileEdit />
+              </RequireAuth>
+            ),
             action: editProfileAction,
           },
           {
             path: "verify-user",
-            element: <RequireAuth><VerifyUser /></RequireAuth>,
+            element: (
+              <RequireAuth>
+                <VerifyUser />
+              </RequireAuth>
+            ),
           },
           {
             path: "auth-debugger",
-            element: <RequireAuth><AuthDebugger /></RequireAuth>,
+            element: (
+              <RequireAuth>
+                <AuthDebugger />
+              </RequireAuth>
+            ),
           },
-
         ],
       },
     ],
@@ -140,7 +195,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     >
       <AuthTokenProvider>
         <RouterProvider router={router} />
-      </AuthTokenProvider>  
+      </AuthTokenProvider>
     </Auth0Provider>
   </React.StrictMode>
 );
