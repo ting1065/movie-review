@@ -4,19 +4,28 @@ import './index.css';
 import Root from './routes/root.jsx';
 import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
 import ErrorPage from './routes/error-page.jsx';
-import Movies, {loader as moviesLoader} from './routes/movies.jsx';
-import MovieDetail, {loader as movieDetailLoader} from './routes/movie-detail';
+import Movies from './routes/movies.jsx';
+import MovieDetail from './routes/movie-detail';
 import ReviewDetail from './routes/review-detail';
-import ReviewEdit from './routes/review-edit';
-import ReviewDelete from './routes/review-delete';
+import ReviewAdd, {action as addReviewAction} from './routes/review-add';
+import ReviewEdit, { action as editReviewAction } from './routes/review-edit';
+import { action as reviewDeleteAction } from './routes/review-delete';
 import UserProfile from './routes/user-profile';
 import UserProfileEdit, {action as editProfileAction } from './routes/user-profile-edit';
 import { Auth0Provider, useAuth0 } from "@auth0/auth0-react";
 import { AuthTokenProvider } from "./AuthTokenContext";
 import VerifyUser from "./routes/verify-user";
 import AuthDebugger from './routes/auth-debugger';
+import {
+  getMovieFromTmdb,
+  getReviewsFromTmdb,
+  getPopularMovies,
+} from "./functions";
+import MoviesReviewed from './routes/movies-reviewed';
+import MoviesRecommended from './routes/movies-recommended';
 
 const requestedScope = "profile email";
+
 
 function RequireAuth({ children }) {
   const { isAuthenticated, isLoading } = useAuth0();
@@ -28,6 +37,20 @@ function RequireAuth({ children }) {
   return children;
 }
 
+//reviews loader
+async function reviewsLoader({params}) {
+  const tmdbId = params.tmdbId;
+  const movie = await getMovieFromTmdb(tmdbId);
+  const tmdbReviews = await getReviewsFromTmdb(tmdbId);
+  return { tmdbId, movie, tmdbReviews };
+}
+
+//movies loader
+async function moviesLoader() {
+  const popularMovies = await getPopularMovies();
+  return { popularMovies };
+}
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -35,37 +58,50 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage />,
     children: [
       {
-        errorElement: <ErrorPage />,
+        errorElement: <></>,
         children: [
           {
+            //popular movies
             index: true,
             element: <Movies />,
             loader: moviesLoader,
           },
           {
-            path: "movies/reviewed/:userId",
-            element: <RequireAuth><Movies /></RequireAuth>,
+            //reviewed movies
+            path: "movies/reviewed",
+            element: <RequireAuth><MoviesReviewed /></RequireAuth>,
           },
           {
-            path: "movies/recommended/:userId",
-            element: <RequireAuth><Movies /></RequireAuth>,
+            //recommended movies
+            path: "movies/recommended",
+            element: <RequireAuth><MoviesRecommended /></RequireAuth>,
           },
           {
             path: "movie/:tmdbId",
             element: <MovieDetail />,
-            loader: movieDetailLoader,
+            loader: reviewsLoader,
           },
           {
             path: "review/:reviewId",
             element: <RequireAuth><ReviewDetail /></RequireAuth>,
           },
           {
-            path: "review/:reviewId/edit",
-            element: <RequireAuth><ReviewEdit /></RequireAuth>,
+            path: "review/add/:tmdbId",
+            element: <RequireAuth><ReviewAdd /></RequireAuth>,
+            loader: reviewsLoader,
+            action: addReviewAction,
           },
           {
-            path: "review/:reviewId/delete",
-            element: <RequireAuth><ReviewDelete /></RequireAuth>,
+            path: "review/edit/:tmdbId",
+            element: <RequireAuth><ReviewEdit /></RequireAuth>,
+            loader: reviewsLoader,
+            action: editReviewAction,
+            
+          },
+          {
+            path: "review/edit/:tmdbId/delete",
+            action: reviewDeleteAction,
+            errorElement: <div>an error happened</div>
           },
           {
             path: "profile",

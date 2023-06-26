@@ -13,25 +13,13 @@ export default function MemberNavBar() {
             <NavLink to='/'>Home</NavLink>
           </li>
           <li>
-            <NavLink to='/movies/reviewed/userid1234'>Reviewed Movies</NavLink>
+            <NavLink to='/movies/reviewed'>Reviewed Movies</NavLink>
           </li>
           <li>
-            <NavLink to='/movies/recommended/userid1234'>recommended movies</NavLink>
-          </li>
-          <li>
-            <NavLink to='/review/reviewid123'>review</NavLink>
-          </li>
-          <li>
-            <NavLink to='/review/reviewid123/edit'>edit review</NavLink>
-          </li>
-          <li>
-            <NavLink to='/review/reviewid123/delete'>delete review</NavLink>
+            <NavLink to='movies/recommended'>recommended movies</NavLink>
           </li>
           <li>
             <NavLink to='/profile'>profile</NavLink>
-          </li>
-          <li>
-            <NavLink to='/profile/userid123/edit'>edit profile</NavLink>
           </li>
           <li>
             <NavLink to="/auth-debugger">auth degugger</NavLink>

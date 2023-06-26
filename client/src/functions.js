@@ -57,8 +57,37 @@ export async function getPopularMovies() {
   }
 }
 
+//get recommended movies from tmdb api using tmdb id
+export async function getRecommendedMovies(tmdbId) {
+  if (!tmdbId) return;
+  try {
+    const response = await fetch(
+      `https://api.themoviedb.org/3/movie/${tmdbId}/recommendations?language=en-US&page=1`,
+      {
+        headers: {
+          accept: "application/json",
+          Authorization: `Bearer ${tmdbToken}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const movies = data.results.map((movie) => extractMovieDataBrief(movie));
+    return movies;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+
 //get a single movie using tmdb id from tmdb api
 export async function getMovieFromTmdb(tmdbId) {
+
+  if (!tmdbId) return;
 
   try {
     const response = await fetch(
@@ -85,6 +114,8 @@ export async function getMovieFromTmdb(tmdbId) {
 
 //get a single movie's reviews using tmdb id from tmdb api
 export async function getReviewsFromTmdb(tmdbId) {
+
+  if (!tmdbId) return;
 
   try {
     const response = await fetch(
@@ -151,7 +182,6 @@ export async function getReviewFromDB(accessToken, tmdbId) {
     );
 
     if (response.status === 404) {
-      console.log(response);
       return;
     } else if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
@@ -197,6 +227,31 @@ export async function getReviewsFromOtherUsers(accessToken, tmdbId) {
 
 }
 
+// get the movie name, poster path, rating and tmdb id of all the movies the user has reviewed
+export async function getReviewedMoviesFromDB(accessToken) {
+  if (!accessToken) return;
+  try {
+    const response = await fetch(
+      `${process.env.REACT_APP_API_URL}/reviewed-movies`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const reviewedMoviesFromDB = await response.json();
+    return reviewedMoviesFromDB;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 //update a user's name or self-introduction in database
 export async function updateUserInDB(accessToken, name, introduction) {
   if (!accessToken) return;
@@ -220,6 +275,121 @@ export async function updateUserInDB(accessToken, name, introduction) {
 
     const updatedUser = await response.json();
     return updatedUser;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+//add a new review to database
+export async function addReviewToDB(accessToken, tmdbId, posterPath, movieName, content, rating) {
+  if (!accessToken) return;
+  try {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/review`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({
+        tmdbId: tmdbId,
+        posterPath: posterPath,
+        movieName: movieName,
+        content: content,
+        rating: rating,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const newReview = await response.json();
+    return newReview;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+//update a review in database
+export async function updateReviewInDB(accessToken, tmdbId, posterPath, movieName, content, rating) {
+  if (!accessToken) return;
+  try {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/review`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({
+        tmdbId: tmdbId,
+        posterPath: posterPath,
+        movieName: movieName,
+        content: content,
+        rating: rating,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const updatedReview = await response.json();
+    return updatedReview;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+//delete a review from database
+export async function deleteReviewFromDB(accessToken, tmdbId) {
+  if (!accessToken) return;
+  try {
+    const response = await fetch(
+      `${process.env.REACT_APP_API_URL}/review`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          tmdbId: tmdbId,
+        }),
+      });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const deletedReview = await response.json();
+    return deletedReview;
+  } catch (error) {
+    console.log(error);
+  }
+
+}
+
+//get the user's highest rated movie's tmdbId from database
+export async function getHighestRatedMovieFromDB(accessToken) {
+  if (!accessToken) return;
+
+  try {
+    const response = await fetch(
+      `${process.env.REACT_APP_API_URL}/movie/favorite`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const highestRatedMovie = await response.json();
+    return highestRatedMovie.tmdbId;
   } catch (error) {
     console.log(error);
   }

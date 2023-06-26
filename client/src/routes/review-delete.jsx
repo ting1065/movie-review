@@ -1,7 +1,8 @@
-import React from 'react'
+import { deleteReviewFromDB } from "../functions";
 
-export default function ReviewDelete() {
-  return (
-    <div>review-delete</div>
-  )
+export async function action({ request ,params }) {
+  const formData = await request.formData();
+  const accessToken = formData.get("accessToken");
+  await deleteReviewFromDB(accessToken, params.tmdbId);
+  return window.location.replace(`/movie/${params.tmdbId}`);
 }

@@ -1,15 +1,15 @@
-import * as dotenv from 'dotenv'
-dotenv.config()
+import * as dotenv from "dotenv";
+dotenv.config();
 import express from "express";
 import pkg from "@prisma/client";
 import morgan from "morgan";
 import cors from "cors";
-import { auth } from  'express-oauth2-jwt-bearer'
+import { auth } from "express-oauth2-jwt-bearer";
 
 const requireAuth = auth({
   audience: process.env.AUTH0_AUDIENCE,
   issuerBaseURL: process.env.AUTH0_ISSUER,
-  tokenSigningAlg: 'RS256'
+  tokenSigningAlg: "RS256",
 });
 
 const app = express();
@@ -38,7 +38,7 @@ app.post("/verify-user", requireAuth, async (req, res) => {
         auth0Id,
       },
     });
-  
+
     if (user) {
       res.status(200).json(user);
     } else {
@@ -48,12 +48,12 @@ app.post("/verify-user", requireAuth, async (req, res) => {
           auth0Id,
         },
       });
-  
+
       res.status(200).json(newUser);
     }
   } catch (error) {
     console.log(error);
-    res.status(500).json({ error: error.message});
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -69,7 +69,7 @@ app.get("/user", requireAuth, async (req, res) => {
     });
     res.status(200).json(user);
   } catch (error) {
-    res.status(500).json({ error: error.message});
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -78,8 +78,6 @@ app.put("/user", requireAuth, async (req, res) => {
   const auth0Id = req.auth.payload.sub;
 
   const { name, introduction } = req.body;
-
-  console.log(auth0Id, name, introduction);
 
   try {
     const user = await prisma.user.update({
@@ -93,7 +91,7 @@ app.put("/user", requireAuth, async (req, res) => {
     });
     res.status(200).json(user);
   } catch (error) {
-    res.status(500).json({ error: error.message});
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -108,14 +106,22 @@ app.delete("/user/:userId", async (req, res) => {
     });
     res.status(200).json(user);
   } catch (error) {
-    res.status(500).json({ error: error.message});
+    res.status(500).json({ error: error.message });
   }
 });
 
+// add a movie or update an existing one, return movie id; internal use only
+async function addMovie(movieName, tmdbId, posterPath) {
+  const existingMovie = await prisma.movie.findUnique({
+    where: {
+      tmdbId: tmdbId,
+    },
+  });
 
-// add a movie
-app.post("/movie", async (req, res) => {
-  const { movieName, tmdbId, posterPath } = req.body;
+  if (existingMovie) {
+    updateMovie(tmdbId, movieName, posterPath);
+    return existingMovie.id;
+  }
 
   try {
     const movie = await prisma.movie.create({
@@ -125,45 +131,82 @@ app.post("/movie", async (req, res) => {
         posterPath,
       },
     });
-    res.status(200).json(movie);
+    return movie.id;
   } catch (error) {
-    res.status(500).json({ error: error.message});
+    console.log(error);
   }
-});
+}
 
-// get a movie by tmdbId
-app.get("/movie/:tmdbId", async (req, res) => {
-  const { tmdbId } = req.params;
+// // // get a movie by tmdbId
+// app.get("/movie/:tmdbId", async (req, res) => {
+//   const { tmdbId } = req.params;
+//   try {
+//     const movie = await prisma.movie.findUnique({
+//       where: {
+//         tmdbId: parseInt(tmdbId),
+//       },
+//     });
+//     res.status(200).json(movie);
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// });
+
+// get the tmdbId of the user's highest rated movie
+app.get("/movie/favorite", requireAuth, async (req, res) => {
+  const auth0Id = req.auth.payload.sub;
+
   try {
-    const movie = await prisma.movie.findUnique({
+
+    const userReviews = await prisma.user.findUnique({
       where: {
-        tmdbId: parseInt(tmdbId),
+        auth0Id,
+      },
+      include: {
+        movieReviews: {
+          include: {
+            movie: true,
+          },
+        },
       },
     });
-    res.status(200).json(movie);
+
+    if (!userReviews || userReviews.movieReviews.length === 0) {
+      res.status(200).json({tmdbId: null});
+      return;
+    }
+
+    const highestRatedMovie = userReviews.movieReviews.reduce((prev, curr) =>
+      prev.rating > curr.rating ? prev : curr 
+    );
+
+    if (!highestRatedMovie) {
+      res.status(200).json({tmdbId: null});
+    } else {
+      res.status(200).json(highestRatedMovie.movie);
+    }
   } catch (error) {
-    res.status(500).json({ error: error.message});
+    res.status(500).json({ error: error.message });
   }
 });
 
-// update a movie's posterPath
-app.put("/movie/:tmdbId", async (req, res) => {
-  const { tmdbId } = req.params;
-  const { posterPath } = req.body;
+// update a movie's movieName and posterPath, internal use only
+async function updateMovie(tmdbId, movieName, posterPath) {
   try {
     const movie = await prisma.movie.update({
       where: {
-        tmdbId: parseInt(tmdbId),
+        tmdbId: tmdbId,
       },
       data: {
+        movieName,
         posterPath,
       },
     });
-    res.status(200).json(movie);
+    return movie;
   } catch (error) {
-    res.status(500).json({ error: error.message});
+    console.log(error);
   }
-});
+}
 
 // delete a movie
 app.delete("/movie/:tmdbId", async (req, res) => {
@@ -176,45 +219,139 @@ app.delete("/movie/:tmdbId", async (req, res) => {
     });
     res.status(200).json(movie);
   } catch (error) {
-    res.status(500).json({ error: error.message});
+    res.status(500).json({ error: error.message });
   }
 });
 
 // add an review
-app.post("/review", async (req, res) => {
-  const { authorId, tmdbId, content, rating } = req.body;
-
-  const movie = await prisma.movie.findUnique({
-    where: {
-      tmdbId,
-    },
-  });
+app.post("/review", requireAuth, async (req, res) => {
+  const auth0Id = req.auth.payload.sub;
+  const { tmdbId, posterPath, movieName, content, rating } = req.body;
 
   const author = await prisma.user.findUnique({
     where: {
-      id: authorId,
+      auth0Id,
     },
   });
 
-  if (!movie || !author) {
-    res.status(404).json({ error: "movie or author not found" });
+  if (!author) {
+    res.status(404);
     return;
   }
-  
+
+  const authorId = author.id;
+  const movieId = await addMovie(movieName, parseInt(tmdbId), posterPath);
+
   try {
-    console.log(authorId);
-    console.log(movie.id);
     const review = await prisma.movieReview.create({
       data: {
         authorId,
-        movieId: movie.id,
+        movieId,
         content,
-        rating,
+        rating: parseFloat(rating),
       },
     });
     res.status(200).json(review);
   } catch (error) {
-    res.status(500).json({ error: error.message});
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// update a review
+app.put("/review", requireAuth, async (req, res) => {
+  const auth0Id = req.auth.payload.sub;
+  const { tmdbId, posterPath, movieName, content, rating } = req.body;
+
+  const author = await prisma.user.findUnique({
+    where: {
+      auth0Id,
+    },
+    include: {
+      movieReviews: true,
+    },
+  });
+
+  if (!author) {
+    res.status(404);
+    return;
+  }
+
+  const movieId = await addMovie(movieName, parseInt(tmdbId), posterPath);
+  const reviewId = author.movieReviews.find(
+    (review) => review.movieId === movieId
+  ).id;
+
+  if (!reviewId) {
+    res.status(404);
+    return;
+  }
+
+  try {
+    const review = await prisma.movieReview.update({
+      where: {
+        id: reviewId,
+      },
+      data: {
+        content,
+        rating: parseFloat(rating),
+      },
+    });
+    res.status(200).json(review);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// delete a review
+app.delete("/review", requireAuth, async (req, res) => {
+  const auth0Id = req.auth.payload.sub;
+  const { tmdbId } = req.body;
+
+  const author = await prisma.user.findUnique({
+    where: {
+      auth0Id,
+    },
+    include: {
+      movieReviews: true,
+    },
+  });
+
+  if (!author) {
+    res.status(404);
+    return;
+  }
+
+  const movie = await prisma.movie.findUnique({
+    where: {
+      tmdbId: parseInt(tmdbId),
+    },
+  });
+
+  if (!movie) {
+    res.status(404);
+    return;
+  }
+
+  const movieId = movie.id;
+
+  const reviewId = author.movieReviews.find(
+    (review) => review.movieId === movieId
+  ).id;
+
+  if (!reviewId) {
+    res.status(404);
+    return;
+  }
+
+  try {
+    const review = await prisma.movieReview.delete({
+      where: {
+        id: reviewId,
+      },
+    });
+    res.status(200).json(review);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -222,9 +359,8 @@ app.post("/review", async (req, res) => {
 app.get("/review/:tmdbId", requireAuth, async (req, res) => {
   const auth0Id = req.auth.payload.sub;
   const tmdbId = req.params.tmdbId;
-  
-  try {
 
+  try {
     const author = await prisma.user.findUnique({
       where: {
         auth0Id,
@@ -250,12 +386,51 @@ app.get("/review/:tmdbId", requireAuth, async (req, res) => {
       return;
     }
 
-    const review = author.movieReviews.find((review) => review.movieId === movie.id);
+    const review = author.movieReviews.find(
+      (review) => review.movieId === movie.id
+    );
 
     res.status(200).json(review);
-
   } catch (error) {
-    res.status(500).json({ error: error.message});
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// get the movie name, poster path, rating and tmdb id of all the movies the user has reviewed
+app.get("/reviewed-movies", requireAuth, async (req, res) => {
+  const auth0Id = req.auth.payload.sub;
+
+  try {
+    const author = await prisma.user.findUnique({
+      where: {
+        auth0Id,
+      },
+      include: {
+        movieReviews: {
+          include: {
+            movie: true,
+          },
+        },
+      },
+    });
+
+    if (!author) {
+      res.status(404);
+      return;
+    }
+
+    const reviews = author.movieReviews.map((review) => {
+      return {
+        movieName: review.movie.movieName,
+        posterPath: review.movie.posterPath,
+        rating: review.rating,
+        tmdbId: review.movie.tmdbId,
+      };
+    });
+
+    res.status(200).json(reviews);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -281,7 +456,7 @@ app.get("/reviews/:tmdbId", requireAuth, async (req, res) => {
         tmdbId: parseInt(tmdbId),
       },
       include: {
-        reviews:{
+        reviews: {
           include: {
             author: true,
           },
@@ -294,46 +469,45 @@ app.get("/reviews/:tmdbId", requireAuth, async (req, res) => {
       return;
     }
 
-    const reviews = movie.reviews.filter((review) => review.authorId !== author.id);
+    const reviews = movie.reviews.filter(
+      (review) => review.authorId !== author.id
+    );
 
     res.status(200).json(reviews);
-
   } catch (error) {
-    res.status(500).json({ error: error.message});
+    res.status(500).json({ error: error.message });
   }
-
 });
 
-  // get all reviews by authorId
-  app.get("/reviews/author/:authorId", async (req, res) => {
-    const { authorId } = req.params;
-    try {
-      const reviews = await prisma.movieReview.findMany({
-        where: {
-          authorId: parseInt(authorId),
-        },
-      });
-      res.status(200).json(reviews);
-    } catch (error) {
-      res.status(500).json({ error: error.message});
-    }
-  });
+// get all reviews by authorId
+app.get("/reviews/author/:authorId", async (req, res) => {
+  const { authorId } = req.params;
+  try {
+    const reviews = await prisma.movieReview.findMany({
+      where: {
+        authorId: parseInt(authorId),
+      },
+    });
+    res.status(200).json(reviews);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
-  // get all reviews by movieId
-  app.get("/reviews/movie/:movieId", async (req, res) => {
-    const { movieId } = req.params;
-    try {
-      const reviews = await prisma.movieReview.findMany({
-        where: {
-          movieId: parseInt(movieId),
-        },
-      });
-      res.status(200).json(reviews);
-    } catch (error) {
-      res.status(500).json({ error: error.message});
-    }
-  });
-
+// get all reviews by movieId
+app.get("/reviews/movie/:movieId", async (req, res) => {
+  const { movieId } = req.params;
+  try {
+    const reviews = await prisma.movieReview.findMany({
+      where: {
+        movieId: parseInt(movieId),
+      },
+    });
+    res.status(200).json(reviews);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 // update a review by review id
 app.put("/review/:reviewId", async (req, res) => {
@@ -351,7 +525,7 @@ app.put("/review/:reviewId", async (req, res) => {
     });
     res.status(200).json(review);
   } catch (error) {
-    res.status(500).json({ error: error.message});
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -366,7 +540,7 @@ app.delete("/review/:reviewId", async (req, res) => {
     });
     res.status(200).json(review);
   } catch (error) {
-    res.status(500).json({ error: error.message});
+    res.status(500).json({ error: error.message });
   }
 });
 

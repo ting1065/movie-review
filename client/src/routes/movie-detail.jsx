@@ -1,42 +1,37 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useLayoutEffect } from "react";
 import {
-  getMovieFromTmdb,
-  getReviewsFromTmdb,
   getReviewFromDB,
   getReviewsFromOtherUsers,
 } from "../functions";
 import { useLoaderData } from "react-router-dom";
 import { useAuthToken } from "../AuthTokenContext";
 import { useAuth0 } from "@auth0/auth0-react";
+import AddReviewButton from "../components/AddReviewButton";
+import EditReviewButton from "../components/EditReviewButton";
 
-export async function loader({ params }) {
-  const tmdbId = params.tmdbId;
-  const movie = await getMovieFromTmdb(tmdbId);
-  const tmdbReviews = await getReviewsFromTmdb(tmdbId);
-  return { tmdbId, movie, tmdbReviews };
-}
 
-export default function MovieDetail({ params }) {
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
-
-  const { tmdbId, movie, tmdbReviews } = useLoaderData();
+export default function MovieDetail() {
+  const { tmdbId, movie, tmdbReviews} = useLoaderData();
   const { accessToken } = useAuthToken();
   const [userReview, setUserReview] = useState(null);
   const [reviewsFromOthers, setReviewsFromOthers] = useState([]);
   const { isAuthenticated } = useAuth0();
 
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   useEffect(() => {
     (async () => {
       setUserReview(await getReviewFromDB(accessToken, tmdbId));
-      setReviewsFromOthers(await getReviewsFromOtherUsers(accessToken, tmdbId));
     })();
   }, [accessToken, tmdbId]);
 
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
+    (async () => {
+      setReviewsFromOthers(await getReviewsFromOtherUsers(accessToken, tmdbId));
+    })();
+  }, [accessToken, tmdbId]);
 
   return (
     <>
@@ -58,11 +53,10 @@ export default function MovieDetail({ params }) {
             <div>
               <p>rating: {userReview.rating}</p>
               <p>content: {userReview.content}</p>
+              <EditReviewButton tmdbId={tmdbId ? tmdbId : ""} />
             </div>
           ) : (
-            <div>
-              <p>you have not reviewed this movie yet</p>
-            </div>
+            <AddReviewButton tmdbId={tmdbId ? tmdbId : ""} />
           )
         ) : (
           <div>
