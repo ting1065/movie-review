@@ -5,6 +5,8 @@ import pkg from "@prisma/client";
 import morgan from "morgan";
 import cors from "cors";
 import { auth } from "express-oauth2-jwt-bearer";
+import { PrismaClient } from '@prisma/client'
+
 
 const requireAuth = auth({
   audience: process.env.AUTH0_AUDIENCE,
@@ -19,8 +21,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(morgan("dev"));
 
-const { PrismaClient } = pkg;
-const prisma = new PrismaClient();
+const prisma = new PrismaClient()
 
 //ping pong test
 app.get("/ping", (req, res) => {
@@ -471,6 +472,8 @@ app.get("/other-reviews/:tmdbId", requireAuth, async (req, res) => {
 });
 
 //run the server
-app.listen(8000, () => {
-  console.log("Server running on http://localhost:8000 🎉 🚀");
+const PORT = parseInt(process.env.PORT) || 8080;
+
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
 });
