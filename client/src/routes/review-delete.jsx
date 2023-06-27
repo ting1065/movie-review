@@ -1,8 +1,9 @@
 import { deleteReviewFromDB } from "../functions";
+import { redirect } from "react-router-dom";
 
 export async function action({ request ,params }) {
   const formData = await request.formData();
   const accessToken = formData.get("accessToken");
   await deleteReviewFromDB(accessToken, params.tmdbId);
-  return window.location.replace(`/movie/${params.tmdbId}`);
+  return redirect(`/movie/${params.tmdbId}`);
 }

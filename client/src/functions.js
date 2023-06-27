@@ -179,7 +179,11 @@ export async function getUserFromDB(accessToken) {
       },
     });
 
-    if (!response.ok) {
+    if (response.status === 404) {
+      const {message} = await response.json();
+      console.log(message);
+      return;
+    } else if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
 
@@ -195,6 +199,7 @@ export async function getUserFromDB(accessToken) {
 //get a user's review for a single movie from database using access token and tmdb id
 export async function getReviewFromDB(accessToken, tmdbId) {
   if (!accessToken || !tmdbId) return;
+
   try {
     const response = await fetch(
       `${process.env.REACT_APP_API_URL}/review/${tmdbId}`,
@@ -207,6 +212,8 @@ export async function getReviewFromDB(accessToken, tmdbId) {
     );
 
     if (response.status === 404) {
+      const {message} = await response.json();
+      console.log(message);
       return;
     } else if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
@@ -227,7 +234,7 @@ export async function getReviewsFromOtherUsers(accessToken, tmdbId) {
   if (!accessToken || !tmdbId) return;
   try {
     const response = await fetch(
-      `${process.env.REACT_APP_API_URL}/reviews/${tmdbId}`,
+      `${process.env.REACT_APP_API_URL}/other-reviews/${tmdbId}`,
       {
         headers: {
           "Content-Type": "application/json",
@@ -236,7 +243,8 @@ export async function getReviewsFromOtherUsers(accessToken, tmdbId) {
       }
     );
     if (response.status === 404) {
-      console.log(response);
+      const {message} = await response.json();
+      console.log(message);
       return;
     } else if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
@@ -266,7 +274,11 @@ export async function getReviewedMoviesFromDB(accessToken) {
       }
     );
 
-    if (!response.ok) {
+    if (response.status === 404) {
+      const {message} = await response.json();
+      console.log(message);
+      return;
+    } else if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
 
@@ -294,7 +306,11 @@ export async function updateUserInDB(accessToken, name, introduction) {
       }),
     });
 
-    if (!response.ok) {
+    if (response.status === 404) {
+      const {message} = await response.json();
+      console.log(message);
+      return;
+    } else if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
 
@@ -324,7 +340,11 @@ export async function addReviewToDB(accessToken, tmdbId, posterPath, movieName, 
       }),
     });
 
-    if (!response.ok) {
+    if (response.status === 404) {
+      const {message} = await response.json();
+      console.log(message);
+      return;
+    } else if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
 
@@ -354,7 +374,11 @@ export async function updateReviewInDB(accessToken, tmdbId, posterPath, movieNam
       }),
     });
 
-    if (!response.ok) {
+    if (response.status === 404) {
+      const {message} = await response.json();
+      console.log(message);
+      return;
+    } else if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
 
@@ -382,9 +406,13 @@ export async function deleteReviewFromDB(accessToken, tmdbId) {
         }),
       });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
+      if (response.status === 404) {
+        const {message} = await response.json();
+        console.log(message);
+        return;
+      } else if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
 
     const deletedReview = await response.json();
     return deletedReview;
@@ -409,7 +437,11 @@ export async function getHighestRatedMovieFromDB(accessToken) {
       }
     );
 
-    if (!response.ok) {
+    if (response.status === 404) {
+      const {message} = await response.json();
+      console.log(message);
+      return;
+    } else if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
 

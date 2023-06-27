@@ -18,7 +18,7 @@ export async function action({request}) {
 
   await addReviewToDB(accessToken, tmdbId, posterPath, movieName, content, rating);
   
-  return window.location.replace(`/movie/${tmdbId}`);
+  return redirect(`/movie/${tmdbId}`);
 }
 
 

@@ -20,11 +20,6 @@ export default function MovieDetail() {
   useEffect(() => {
     (async () => {
       setUserReview(await getReviewFromDB(accessToken, tmdbId));
-    })();
-  }, [accessToken, tmdbId]);
-
-  useEffect(() => {
-    (async () => {
       setReviewsFromOthers(await getReviewsFromOtherUsers(accessToken, tmdbId));
     })();
   }, [accessToken, tmdbId]);
