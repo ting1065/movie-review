@@ -143,7 +143,6 @@ app.get("/movie/favorite", requireAuth, async (req, res) => {
   const auth0Id = req.auth.payload.sub;
 
   try {
-
     const userReviews = await prisma.user.findUnique({
       where: {
         auth0Id,
@@ -158,12 +157,14 @@ app.get("/movie/favorite", requireAuth, async (req, res) => {
     });
 
     if (!userReviews || userReviews.movieReviews.length === 0) {
-      res.status(204).json({message: "No reviews found, unable to find favorite movie"});
+      res
+        .status(204)
+        .json({ message: "No reviews found, unable to find favorite movie" });
       return;
     }
 
     const highestRatedMovie = userReviews.movieReviews.reduce((prev, curr) =>
-      prev.rating > curr.rating ? prev : curr 
+      prev.rating > curr.rating ? prev : curr
     );
 
     if (!highestRatedMovie) {
@@ -173,7 +174,7 @@ app.get("/movie/favorite", requireAuth, async (req, res) => {
       const result = {
         ...movie,
         rating: highestRatedMovie.rating,
-      }
+      };
       res.status(200).json(result);
     }
   } catch (error) {

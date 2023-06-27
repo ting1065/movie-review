@@ -19,7 +19,6 @@ export default function VerifyUser() {
       await data.json();
 
       navigate("/");
-      
     }
 
     if (accessToken) {

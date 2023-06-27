@@ -6,12 +6,10 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { getHighestRatedMovieFromDB } from "../dataFetchFunctions";
 
 export default function MoviesPopular() {
-
   const [favoriteMovie, setFavoriteMovie] = useState(null);
   const [favoriteMovieSection, setFavoriteMovieSection] = useState(<></>);
   const { isAuthenticated } = useAuth0();
   const { accessToken } = useAuthToken();
-
 
   useLayoutEffect(() => {
     window.scrollTo(0, 0);
@@ -21,7 +19,9 @@ export default function MoviesPopular() {
 
   useEffect(() => {
     (async () => {
-      const favoriteMovieFetched = await getHighestRatedMovieFromDB(accessToken);
+      const favoriteMovieFetched = await getHighestRatedMovieFromDB(
+        accessToken
+      );
       if (favoriteMovieFetched) {
         setFavoriteMovie(favoriteMovieFetched);
       } else {
@@ -61,7 +61,17 @@ export default function MoviesPopular() {
   return (
     <>
       <h2>Your Highest Rated Movie</h2>
-      {isAuthenticated ? favoriteMovie ? favoriteMovieSection : <p className="page-desciption" >no review made yet</p> : <p className="page-desciption" >only a prime member shall enjoy such fancy feature</p>}
+      {isAuthenticated ? (
+        favoriteMovie ? (
+          favoriteMovieSection
+        ) : (
+          <p className="page-desciption">no review made yet</p>
+        )
+      ) : (
+        <p className="page-desciption">
+          only a prime member shall enjoy such fancy feature
+        </p>
+      )}
       <h2>Trending Movies</h2>
       {elements}
     </>

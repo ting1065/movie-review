@@ -1,15 +1,14 @@
-import React, {useLayoutEffect} from 'react'
+import React, { useLayoutEffect } from "react";
 import { useLoaderData } from "react-router-dom";
 import MovieBrief from "../components/MovieBrief";
 
 export default function MoviesSearched() {
-  
   const { searchedMovies, searchName } = useLoaderData();
 
   useLayoutEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-  
+
   const elements = searchedMovies
     .filter((movie) => movie.posterPath !== null)
     .map((movie) => (
@@ -23,9 +22,9 @@ export default function MoviesSearched() {
     ));
 
   return (
-  <>
-    <h2>Search results for {searchName}</h2>
-    {elements}
-  </>
+    <>
+      <h2>Search results for {searchName}</h2>
+      {elements}
+    </>
   );
 }

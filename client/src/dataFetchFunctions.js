@@ -112,7 +112,6 @@ export async function getSearchedMovies(searchedName) {
 
 //get a single movie using tmdb id from tmdb api
 export async function getMovieFromTmdb(tmdbId) {
-
   if (!tmdbId) return;
 
   try {
@@ -140,7 +139,6 @@ export async function getMovieFromTmdb(tmdbId) {
 
 //get a single movie's reviews using tmdb id from tmdb api
 export async function getReviewsFromTmdb(tmdbId) {
-
   if (!tmdbId) return;
 
   try {
@@ -160,10 +158,11 @@ export async function getReviewsFromTmdb(tmdbId) {
     }
 
     const data = await response.json();
-    const reviewsFromTmdb = data.results.map((review) => extractReviewData(review));
+    const reviewsFromTmdb = data.results.map((review) =>
+      extractReviewData(review)
+    );
 
     return reviewsFromTmdb;
-
   } catch (error) {
     console.log(error);
   }
@@ -181,7 +180,7 @@ export async function getUserFromDB(accessToken) {
     });
 
     if (response.status === 204) {
-      const {message} = await response.json();
+      const { message } = await response.json();
       console.log(message);
       return;
     } else if (!response.ok) {
@@ -194,7 +193,6 @@ export async function getUserFromDB(accessToken) {
   } catch (error) {
     console.log(error);
   }
-
 }
 
 //get a user's review for a single movie from database using access token and tmdb id
@@ -213,7 +211,7 @@ export async function getReviewFromDB(accessToken, tmdbId) {
     );
 
     if (response.status === 204) {
-      const {message} = await response.json();
+      const { message } = await response.json();
       console.log(message);
       return;
     } else if (!response.ok) {
@@ -221,13 +219,11 @@ export async function getReviewFromDB(accessToken, tmdbId) {
     }
 
     const reviewFromDB = await response.json();
-  
-    return reviewFromDB;
 
+    return reviewFromDB;
   } catch (error) {
     console.log(error);
   }
-
 }
 
 //get a single movie's reviews from other users
@@ -244,7 +240,7 @@ export async function getReviewsFromOtherUsers(accessToken, tmdbId) {
       }
     );
     if (response.status === 204) {
-      const {message} = await response.json();
+      const { message } = await response.json();
       console.log(message);
       return;
     } else if (!response.ok) {
@@ -252,13 +248,11 @@ export async function getReviewsFromOtherUsers(accessToken, tmdbId) {
     }
 
     const reviewsFromOtherUsers = await response.json();
-  
-    return reviewsFromOtherUsers;
 
+    return reviewsFromOtherUsers;
   } catch (error) {
     console.log(error);
   }
-
 }
 
 // get the movie name, poster path, rating and tmdb id of all the movies the user has reviewed
@@ -276,7 +270,7 @@ export async function getReviewedMoviesFromDB(accessToken) {
     );
 
     if (response.status === 204) {
-      const {message} = await response.json();
+      const { message } = await response.json();
       console.log(message);
       return;
     } else if (!response.ok) {
@@ -308,7 +302,7 @@ export async function updateUserInDB(accessToken, name, introduction) {
     });
 
     if (response.status === 204) {
-      const {message} = await response.json();
+      const { message } = await response.json();
       console.log(message);
       return;
     } else if (!response.ok) {
@@ -323,7 +317,14 @@ export async function updateUserInDB(accessToken, name, introduction) {
 }
 
 //add a new review to database
-export async function addReviewToDB(accessToken, tmdbId, posterPath, movieName, content, rating) {
+export async function addReviewToDB(
+  accessToken,
+  tmdbId,
+  posterPath,
+  movieName,
+  content,
+  rating
+) {
   if (!accessToken) return;
   try {
     const response = await fetch(`${process.env.REACT_APP_API_URL}/review`, {
@@ -342,7 +343,7 @@ export async function addReviewToDB(accessToken, tmdbId, posterPath, movieName, 
     });
 
     if (response.status === 204) {
-      const {message} = await response.json();
+      const { message } = await response.json();
       console.log(message);
       return;
     } else if (!response.ok) {
@@ -357,7 +358,14 @@ export async function addReviewToDB(accessToken, tmdbId, posterPath, movieName, 
 }
 
 //update a review in database
-export async function updateReviewInDB(accessToken, tmdbId, posterPath, movieName, content, rating) {
+export async function updateReviewInDB(
+  accessToken,
+  tmdbId,
+  posterPath,
+  movieName,
+  content,
+  rating
+) {
   if (!accessToken) return;
   try {
     const response = await fetch(`${process.env.REACT_APP_API_URL}/review`, {
@@ -376,7 +384,7 @@ export async function updateReviewInDB(accessToken, tmdbId, posterPath, movieNam
     });
 
     if (response.status === 204) {
-      const {message} = await response.json();
+      const { message } = await response.json();
       console.log(message);
       return;
     } else if (!response.ok) {
@@ -394,33 +402,30 @@ export async function updateReviewInDB(accessToken, tmdbId, posterPath, movieNam
 export async function deleteReviewFromDB(accessToken, tmdbId) {
   if (!accessToken) return;
   try {
-    const response = await fetch(
-      `${process.env.REACT_APP_API_URL}/review`,
-      {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify({
-          tmdbId: tmdbId,
-        }),
-      });
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/review`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({
+        tmdbId: tmdbId,
+      }),
+    });
 
-      if (response.status === 204) {
-        const {message} = await response.json();
-        console.log(message);
-        return;
-      } else if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
+    if (response.status === 204) {
+      const { message } = await response.json();
+      console.log(message);
+      return;
+    } else if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
 
     const deletedReview = await response.json();
     return deletedReview;
   } catch (error) {
     console.log(error);
   }
-
 }
 
 //get the user's highest rated movie's tmdbId from database
@@ -439,7 +444,7 @@ export async function getHighestRatedMovieFromDB(accessToken) {
     );
 
     if (response.status === 204) {
-      const {message} = await response.json();
+      const { message } = await response.json();
       console.log(message);
       return;
     } else if (!response.ok) {

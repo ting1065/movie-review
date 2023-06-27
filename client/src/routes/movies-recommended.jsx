@@ -1,7 +1,10 @@
 import { useAuthToken } from "../AuthTokenContext";
 import MovieBrief from "../components/MovieBrief";
 import { useState, useEffect, useLayoutEffect } from "react";
-import { getHighestRatedMovieFromDB, getRecommendedMovies } from "../dataFetchFunctions";
+import {
+  getHighestRatedMovieFromDB,
+  getRecommendedMovies,
+} from "../dataFetchFunctions";
 
 export default function MoviesRecommend() {
   const { accessToken } = useAuthToken();
@@ -15,7 +18,9 @@ export default function MoviesRecommend() {
 
   useEffect(() => {
     (async () => {
-      const favoriteMovieFetched = await getHighestRatedMovieFromDB(accessToken);
+      const favoriteMovieFetched = await getHighestRatedMovieFromDB(
+        accessToken
+      );
       if (favoriteMovieFetched) {
         setFavoriteMovie(favoriteMovieFetched);
       } else {
@@ -53,10 +58,15 @@ export default function MoviesRecommend() {
   return (
     <>
       <h2>Recommended Movies</h2>
-      <p className="page-desciption">Based on your favorite movie: {favoriteMovie ? favoriteMovie.movieName : "none"}</p>
-      {elements.length === 0
-        ? <p>add at least one review to get recommendation</p>
-        : elements}
+      <p className="page-desciption">
+        Based on your favorite movie:{" "}
+        {favoriteMovie ? favoriteMovie.movieName : "none"}
+      </p>
+      {elements.length === 0 ? (
+        <p>add at least one review to get recommendation</p>
+      ) : (
+        elements
+      )}
     </>
   );
 }

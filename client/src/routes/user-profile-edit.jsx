@@ -1,9 +1,9 @@
-import { Form, redirect, useNavigate, } from "react-router-dom";
+import { Form, redirect, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAuthToken } from "../AuthTokenContext";
 import { getUserFromDB, updateUserInDB } from "../dataFetchFunctions";
 
-export async function action({request}) {
+export async function action({ request }) {
   const formData = await request.formData();
   const accessToken = formData.get("accessToken");
   const name = formData.get("name");
@@ -39,20 +39,63 @@ export default function UserProfileEdit() {
     })();
   }, [accessToken]);
 
-
   return (
     <Form className="row profile-form" method="post">
-        <label className="detail-element detail-prompt profile-element" htmlFor="name">Name</label>
-        <textarea className="detail-element profile-element edit-content" rows={1} id="name" type="text" name="name" defaultValue={userFromDB ? userFromDB.name : ""} placeholder="enter your preferred name"/>
-        <label className="detail-element detail-prompt profile-element" htmlFor="introduction">Self-introduction</label>
-        <textarea className="detail-element profile-element edit-content" rows={20} type="text" id="introduction" name="introduction" defaultValue={userFromDB ? userFromDB.selfIntroduction ? userFromDB.selfIntroduction : "" : ""} placeholder="describe yourslef"/>
-        <input type="hidden" name="accessToken" value={accessToken ? accessToken : ""}/>
-        <div className="detail-element profile-element button-wrapper">
-          <button className="edit-area-button" type="submit">update</button>
-          <button className="edit-area-button" type="button" onClick={() => {
-              navigate(-1);
-            }}>cancel</button>
-        </div>
+      <label
+        className="detail-element detail-prompt profile-element"
+        htmlFor="name"
+      >
+        Name
+      </label>
+      <textarea
+        className="detail-element profile-element edit-content"
+        rows={1}
+        id="name"
+        type="text"
+        name="name"
+        defaultValue={userFromDB ? userFromDB.name : ""}
+        placeholder="enter your preferred name"
+      />
+      <label
+        className="detail-element detail-prompt profile-element"
+        htmlFor="introduction"
+      >
+        Self-introduction
+      </label>
+      <textarea
+        className="detail-element profile-element edit-content"
+        rows={20}
+        type="text"
+        id="introduction"
+        name="introduction"
+        defaultValue={
+          userFromDB
+            ? userFromDB.selfIntroduction
+              ? userFromDB.selfIntroduction
+              : ""
+            : ""
+        }
+        placeholder="describe yourslef"
+      />
+      <input
+        type="hidden"
+        name="accessToken"
+        value={accessToken ? accessToken : ""}
+      />
+      <div className="detail-element profile-element button-wrapper">
+        <button className="edit-area-button" type="submit">
+          update
+        </button>
+        <button
+          className="edit-area-button"
+          type="button"
+          onClick={() => {
+            navigate(-1);
+          }}
+        >
+          cancel
+        </button>
+      </div>
     </Form>
-  )
+  );
 }
