@@ -1,10 +1,14 @@
 import React, { useEffect, useState, useLayoutEffect } from "react";
-import { getReviewFromDB, getReviewsFromOtherUsers } from "../functions";
+import {
+  getReviewFromDB,
+  getReviewsFromOtherUsers,
+} from "../dataFetchFunctions";
 import { useLoaderData } from "react-router-dom";
 import { useAuthToken } from "../AuthTokenContext";
 import { useAuth0 } from "@auth0/auth0-react";
 import AddReviewButton from "../components/AddReviewButton";
 import EditReviewButton from "../components/EditReviewButton";
+import SingleReviewFromOther from "../components/SingleReviewFromOther";
 
 export default function MovieDetail() {
   const { tmdbId, movie, tmdbReviews } = useLoaderData();
@@ -26,81 +30,106 @@ export default function MovieDetail() {
 
   return (
     <>
-      <div>
-        <h2>{movie.title}</h2>
-        <img
-          src={`https://image.tmdb.org/t/p/w500${movie.posterPath}`}
-          alt={movie.title}
-        />
-        <p>released date: {movie.releasedDate}</p>
-        <p>tmdb rating: {movie.rating}</p>
-        <p>overview: {movie.overview}</p>
-      </div>
+      <h2>{movie.title}</h2>
+      <img
+        className="detail-element"
+        src={`https://image.tmdb.org/t/p/original${movie.posterPath}`}
+        alt={movie.title}
+      />
+      <p className="detail-element">
+        <strong>Released Date:</strong> {` ${movie.releasedDate}`}
+      </p>
+      <p className="detail-element">
+        <strong>TMDB Rating:</strong>
+        {` ${movie.rating ? movie.rating.toFixed(1) : " n/a"}`}
+      </p>
+      <p className="detail-element review-content">
+        <strong>Overview:</strong>
+        <br></br>
+        <br></br>
+        {movie.overview}
+        <br></br>
+        <br></br>
+      </p>
 
-      <div>
-        <h2>your review</h2>
-        {isAuthenticated ? (
-          userReview ? (
-            <div>
-              <p>rating: {userReview.rating}</p>
-              <p>content: {userReview.content}</p>
-              <EditReviewButton tmdbId={tmdbId ? tmdbId : ""} />
-            </div>
+      <h3 className="detail-element  detail-subtitle">Your Review</h3>
+      {isAuthenticated ? (
+        userReview ? (
+          <>
+            <p className="detail-element">
+              <strong>Rating:</strong>
+              {` ${userReview.rating.toFixed(1)}`}
+            </p>
+            <p className="detail-element  review-content">
+              <strong>Content:</strong>
+              <br></br>
+              <br></br>
+              {userReview.content}
+              <br></br>
+              <br></br>
+            </p>
+            <EditReviewButton tmdbId={tmdbId ? tmdbId : ""} />
+          </>
+        ) : (
+          <AddReviewButton tmdbId={tmdbId ? tmdbId : ""} />
+        )
+      ) : (
+        <p className="detail-element detail-prompt">
+          only a prime member shall enjoy such fancy feature
+        </p>
+      )}
+
+      <h3 className="detail-element  detail-subtitle">
+        Reviews From Other Users
+      </h3>
+      {isAuthenticated ? (
+        reviewsFromOthers ? (
+          reviewsFromOthers.length > 0 ? (
+            reviewsFromOthers.map((review) => (
+              <SingleReviewFromOther
+                key={review.id}
+                author={review.author.name}
+                rating={review.rating.toFixed(1)}
+                content={review.content}
+              />
+            ))
           ) : (
-            <AddReviewButton tmdbId={tmdbId ? tmdbId : ""} />
+            <p className="detail-element detail-prompt">
+              no reviews from other users yet
+            </p>
           )
         ) : (
-          <div>
-            <p>only a prime member shall enjoy such fancy feature</p>
-          </div>
-        )}
-      </div>
+          <p className="detail-element detail-prompt">
+            no reviews from other users yet
+          </p>
+        )
+      ) : (
+        <p className="detail-element detail-prompt">
+          only a prime member shall enjoy such fancy feature
+        </p>
+      )}
 
-      <div>
-        <h2>reviews from other users</h2>
-        {isAuthenticated ? (
-          reviewsFromOthers ? (
-            reviewsFromOthers.length > 0 ? (
-              reviewsFromOthers.map((review) => (
-                <div key={review.id}>
-                  <p>author: {review.author.name}</p>
-                  <p>rating: {review.rating}</p>
-                  <p>content: {review.content}</p>
-                </div>
-              ))
-            ) : (
-              <div>
-                <p>no reviews from other users yet</p>
-              </div>
-            )
-          ) : (
-            <div>
-              <p>no reviews from other users yet</p>
-            </div>
-          )
-        ) : (
-          <div>
-            <p>only a prime member shall enjoy such fancy feature</p>
-          </div>
-        )}
-      </div>
-
-      <div>
-        <h2>reviews from tmdb</h2>
-        {tmdbReviews.length !== 0 ? (
+      <h3 className="detail-element detail-subtitle">Reviews From TMDB</h3>
+      {tmdbReviews ? (
+        tmdbReviews.length !== 0 ? (
           tmdbReviews.map((review) => (
-            <div key={review.id}>
-              <p>author: {review.author}</p>
-              <p>rating: {review.rating ? review.rating : "n/a"}</p>
-              <p>content: {review.content}</p>
-            </div>
+            <SingleReviewFromOther
+              key={review.id}
+              author={review.author}
+              rating={review.rating ? review.rating.toFixed(1) : "n/a"}
+              content={review.content}
+            />
           ))
         ) : (
-          <div>
-            <p>no review on this movie yet</p>
-          </div>
-        )}
-      </div>
+          <p className="detail-element detail-prompt">
+            no review on this movie yet
+          </p>
+        )
+      ) : (
+        <p className="detail-element detail-prompt">
+          no review on this movie yet
+        </p>
+      )}
     </>
   );
 }

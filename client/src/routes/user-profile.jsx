@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuthToken } from "../AuthTokenContext";
-import { getUserFromDB } from "../functions";
+import { getUserFromDB } from "../dataFetchFunctions";
 import { useAuth0 } from "@auth0/auth0-react";
 import { NavLink } from 'react-router-dom'
 
@@ -16,24 +16,30 @@ export default function UserProfile() {
   }, [accessToken]);
 
   return (
-    <div>
-      <div>
-        <p>Name: {userFromDB ? userFromDB.name : ""}</p>
-      </div>
-      <div>
-        <p>Email: {userFromDB ? userFromDB.email : ""}</p>
-      </div>
-      <div>
-        <p>Email verified: {user? user.email_verified?.toString() : ""}</p>
-      </div>
-      <div>
-        <p>Self-intro: {userFromDB ? userFromDB.selfIntroduction ? userFromDB.selfIntroduction : "<no intro yet...>" : ""}</p>
-      </div>
-      <div>
-        <NavLink to="/profile/edit">
-          <button>Edit</button>
-        </NavLink>
-      </div>
-    </div>
+    <>
+    <p className="detail-element profile-element">
+      <strong>Author:</strong>
+      {`     ${userFromDB ? userFromDB.name : ""}`}
+    </p>
+    <p className="detail-element profile-element">
+      <strong>Email:</strong>
+      {`     ${userFromDB ? userFromDB.email : ""}`}
+    </p>
+    <p className="detail-element profile-element">
+      <strong>Email Verification:</strong>
+      {`     ${user? user.email_verified? "✅" : "❎" : "❎"}`}
+    </p>
+    <p className="detail-element  review-content profile-element">
+      <strong>Self-intro:</strong>
+      <br></br>
+      <br></br>
+      {userFromDB ? userFromDB.selfIntroduction : ""}
+      <br></br>
+      <br></br>
+    </p>
+    <NavLink className="detail-element detail-prompt profile-element" to="/profile/edit">
+      <button>Edit</button>
+    </NavLink>
+  </>
   )
 }

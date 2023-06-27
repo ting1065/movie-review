@@ -1,32 +1,36 @@
 import { useAuthToken } from "../AuthTokenContext";
 import MovieBrief from "../components/MovieBrief";
-import { useState, useEffect } from "react";
-import { getHighestRatedMovieFromDB, getRecommendedMovies } from "../functions";
+import { useState, useEffect, useLayoutEffect } from "react";
+import { getHighestRatedMovieFromDB, getRecommendedMovies } from "../dataFetchFunctions";
 
 export default function MoviesRecommend() {
   const { accessToken } = useAuthToken();
-  const [tmdbIdOfFav, setTmdbIdOfFav] = useState(null);
+  const [favoriteMovie, setFavoriteMovie] = useState(null);
   const [recommendedMovies, setRecommendedMovies] = useState([]);
   const [elements, setElements] = useState([]);
 
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   useEffect(() => {
     (async () => {
-      const tmdbIdOfFavGot = await getHighestRatedMovieFromDB(accessToken);
-      if (tmdbIdOfFavGot) {
-        setTmdbIdOfFav(parseInt(tmdbIdOfFavGot));
+      const favoriteMovieFetched = await getHighestRatedMovieFromDB(accessToken);
+      if (favoriteMovieFetched) {
+        setFavoriteMovie(favoriteMovieFetched);
       } else {
-        setTmdbIdOfFav(null);
+        setFavoriteMovie(null);
       }
     })();
   }, [accessToken]);
 
   useEffect(() => {
-    if (tmdbIdOfFav) {
+    if (favoriteMovie) {
       (async () => {
-        setRecommendedMovies(await getRecommendedMovies(tmdbIdOfFav));
+        setRecommendedMovies(await getRecommendedMovies(favoriteMovie.tmdbId));
       })();
     }
-  }, [tmdbIdOfFav]);
+  }, [favoriteMovie]);
 
   useEffect(() => {
     if (recommendedMovies) {
@@ -36,8 +40,9 @@ export default function MoviesRecommend() {
           .map((movie) => (
             <MovieBrief
               key={movie.tmdbId}
-              title={movie.movieName}
+              title={movie.title}
               posterPath={movie.posterPath}
+              tmdbRating={movie.rating}
               tmdbId={movie.tmdbId}
             />
           ))
@@ -46,10 +51,12 @@ export default function MoviesRecommend() {
   }, [recommendedMovies]);
 
   return (
-    <div>
+    <>
+      <h2>Recommended Movies</h2>
+      <p className="page-desciption">Based on your favorite movie: {favoriteMovie ? favoriteMovie.movieName : "none"}</p>
       {elements.length === 0
-        ? "add at least one review to get recommendation"
+        ? <p>add at least one review to get recommendation</p>
         : elements}
-    </div>
+    </>
   );
 }

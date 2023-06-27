@@ -158,7 +158,7 @@ app.get("/movie/favorite", requireAuth, async (req, res) => {
     });
 
     if (!userReviews || userReviews.movieReviews.length === 0) {
-      res.status(200).json({tmdbId: null});
+      res.status(204).json({message: "No reviews found, unable to find favorite movie"});
       return;
     }
 
@@ -167,9 +167,14 @@ app.get("/movie/favorite", requireAuth, async (req, res) => {
     );
 
     if (!highestRatedMovie) {
-      res.status(200).json({tmdbId: null});
+      throw new Error("Unable to find highest rated movie");
     } else {
-      res.status(200).json(highestRatedMovie.movie);
+      const movie = highestRatedMovie.movie;
+      const result = {
+        ...movie,
+        rating: highestRatedMovie.rating,
+      }
+      res.status(200).json(result);
     }
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -206,7 +211,7 @@ app.post("/review", requireAuth, async (req, res) => {
   });
 
   if (!author) {
-    res.status(404).json({ message: "User not found" });
+    res.status(204).json({ message: "User not found" });
     return;
   }
 
@@ -243,7 +248,7 @@ app.put("/review", requireAuth, async (req, res) => {
   });
 
   if (!author) {
-    res.status(404).json({ message: "User not found" });
+    res.status(204).json({ message: "User not found" });
     return;
   }
 
@@ -253,7 +258,7 @@ app.put("/review", requireAuth, async (req, res) => {
   );
 
   if (!review) {
-    res.status(404).json({ message: "Review not found" });
+    res.status(204).json({ message: "Review not found" });
     return;
   }
 
@@ -290,7 +295,7 @@ app.delete("/review", requireAuth, async (req, res) => {
   });
 
   if (!author) {
-    res.status(404).json({ message: "User not found" });
+    res.status(204).json({ message: "User not found" });
     return;
   }
 
@@ -301,7 +306,7 @@ app.delete("/review", requireAuth, async (req, res) => {
   });
 
   if (!movie) {
-    res.status(404).json({ message: "Movie not found" });
+    res.status(204).json({ message: "Movie not found" });
     return;
   }
 
@@ -312,7 +317,7 @@ app.delete("/review", requireAuth, async (req, res) => {
   );
 
   if (!review) {
-    res.status(404).json({ message: "Review not found" });
+    res.status(204).json({ message: "Review not found" });
     return;
   }
 
@@ -346,7 +351,7 @@ app.get("/review/:tmdbId", requireAuth, async (req, res) => {
     });
 
     if (!author) {
-      res.status(404).json({ message: "user not found" });
+      res.status(204).json({ message: "user not found" });
       return;
     }
 
@@ -357,7 +362,7 @@ app.get("/review/:tmdbId", requireAuth, async (req, res) => {
     });
 
     if (!movie) {
-      res.status(404).json({ message: "movie not found" });
+      res.status(204).json({ message: "movie not found" });
       return;
     }
 
@@ -366,7 +371,7 @@ app.get("/review/:tmdbId", requireAuth, async (req, res) => {
     );
 
     if (!review) {
-      res.status(404).json({ message: "review not found" });
+      res.status(204).json({ message: "review not found" });
       return;
     }
 
@@ -395,7 +400,7 @@ app.get("/reviewed-movies", requireAuth, async (req, res) => {
     });
 
     if (!author) {
-      res.status(404).json({ message: "user not found" });
+      res.status(204).json({ message: "user not found" });
       return;
     }
 
@@ -427,7 +432,7 @@ app.get("/other-reviews/:tmdbId", requireAuth, async (req, res) => {
     });
 
     if (!author) {
-      res.status(404).json({ message: "user not found" });
+      res.status(204).json({ message: "user not found" });
       return;
     }
 
@@ -445,7 +450,7 @@ app.get("/other-reviews/:tmdbId", requireAuth, async (req, res) => {
     });
 
     if (!movie) {
-      res.status(404).json({ message: "movie not found" });
+      res.status(204).json({ message: "movie not found" });
       return;
     }
 
@@ -454,7 +459,7 @@ app.get("/other-reviews/:tmdbId", requireAuth, async (req, res) => {
     );
 
     if (reviews.length === 0) {
-      res.status(404).json({ message: "no reviews found" });
+      res.status(204).json({ message: "no reviews found" });
       return;
     }
 
@@ -463,71 +468,6 @@ app.get("/other-reviews/:tmdbId", requireAuth, async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-
-// // get all reviews by authorId
-// app.get("/reviews/author/:authorId", async (req, res) => {
-//   const { authorId } = req.params;
-//   try {
-//     const reviews = await prisma.movieReview.findMany({
-//       where: {
-//         authorId: parseInt(authorId),
-//       },
-//     });
-//     res.status(200).json(reviews);
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// });
-
-// // get all reviews by movieId
-// app.get("/reviews/movie/:movieId", async (req, res) => {
-//   const { movieId } = req.params;
-//   try {
-//     const reviews = await prisma.movieReview.findMany({
-//       where: {
-//         movieId: parseInt(movieId),
-//       },
-//     });
-//     res.status(200).json(reviews);
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// });
-
-// // update a review by review id
-// app.put("/review/:reviewId", async (req, res) => {
-//   const { reviewId } = req.params;
-//   const { content, rating } = req.body;
-//   try {
-//     const review = await prisma.movieReview.update({
-//       where: {
-//         id: parseInt(reviewId),
-//       },
-//       data: {
-//         content,
-//         rating,
-//       },
-//     });
-//     res.status(200).json(review);
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// });
-
-// // delete a review by review id
-// app.delete("/review/:reviewId", async (req, res) => {
-//   const { reviewId } = req.params;
-//   try {
-//     const review = await prisma.movieReview.delete({
-//       where: {
-//         id: parseInt(reviewId),
-//       },
-//     });
-//     res.status(200).json(review);
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// });
 
 //run the server
 app.listen(8000, () => {

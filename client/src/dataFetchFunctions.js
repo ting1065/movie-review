@@ -7,6 +7,7 @@ function extractMovieDataBrief(movie) {
     tmdbId: movie.id,
     title: movie.title,
     posterPath: movie.poster_path,
+    rating: movie.vote_average,
   };
 }
 
@@ -179,7 +180,7 @@ export async function getUserFromDB(accessToken) {
       },
     });
 
-    if (response.status === 404) {
+    if (response.status === 204) {
       const {message} = await response.json();
       console.log(message);
       return;
@@ -211,7 +212,7 @@ export async function getReviewFromDB(accessToken, tmdbId) {
       }
     );
 
-    if (response.status === 404) {
+    if (response.status === 204) {
       const {message} = await response.json();
       console.log(message);
       return;
@@ -242,7 +243,7 @@ export async function getReviewsFromOtherUsers(accessToken, tmdbId) {
         },
       }
     );
-    if (response.status === 404) {
+    if (response.status === 204) {
       const {message} = await response.json();
       console.log(message);
       return;
@@ -274,7 +275,7 @@ export async function getReviewedMoviesFromDB(accessToken) {
       }
     );
 
-    if (response.status === 404) {
+    if (response.status === 204) {
       const {message} = await response.json();
       console.log(message);
       return;
@@ -306,7 +307,7 @@ export async function updateUserInDB(accessToken, name, introduction) {
       }),
     });
 
-    if (response.status === 404) {
+    if (response.status === 204) {
       const {message} = await response.json();
       console.log(message);
       return;
@@ -340,7 +341,7 @@ export async function addReviewToDB(accessToken, tmdbId, posterPath, movieName, 
       }),
     });
 
-    if (response.status === 404) {
+    if (response.status === 204) {
       const {message} = await response.json();
       console.log(message);
       return;
@@ -374,7 +375,7 @@ export async function updateReviewInDB(accessToken, tmdbId, posterPath, movieNam
       }),
     });
 
-    if (response.status === 404) {
+    if (response.status === 204) {
       const {message} = await response.json();
       console.log(message);
       return;
@@ -406,7 +407,7 @@ export async function deleteReviewFromDB(accessToken, tmdbId) {
         }),
       });
 
-      if (response.status === 404) {
+      if (response.status === 204) {
         const {message} = await response.json();
         console.log(message);
         return;
@@ -437,7 +438,7 @@ export async function getHighestRatedMovieFromDB(accessToken) {
       }
     );
 
-    if (response.status === 404) {
+    if (response.status === 204) {
       const {message} = await response.json();
       console.log(message);
       return;
@@ -446,7 +447,7 @@ export async function getHighestRatedMovieFromDB(accessToken) {
     }
 
     const highestRatedMovie = await response.json();
-    return highestRatedMovie.tmdbId;
+    return highestRatedMovie;
   } catch (error) {
     console.log(error);
   }

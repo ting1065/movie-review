@@ -1,0 +1,179 @@
+.row {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+  flex-direction: row;
+  border-bottom: 1px solid #160c50;
+  padding: 1% 0;
+}
+
+.header,
+.search-bar {
+  border-bottom: 0;
+}
+
+.search-form {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.search-input {
+  width: 35%;
+  margin: 0% 1%;
+}
+
+.search-button {
+  width: 10%;
+  margin: 0% 1%;
+}
+
+h2 {
+  text-align: center;
+  width: 80%;
+}
+
+h3 {
+  text-align: center;
+}
+
+.welcome-slogan {
+  margin: 0;
+}
+
+.page-desciption {
+  text-align: center;
+  width: 80%;
+  margin-top: 0;
+}
+
+.greeting-row {
+  border-bottom: 0;
+  padding: 0;
+}
+
+.brief-frame {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  justify-content: center;
+  width: 30%;
+  margin: 2% auto;
+  padding: 0;
+  border: 0px;
+}
+
+.detail-element {
+  width: 70%;
+}
+
+.profile-element {
+  width: 51%;
+}
+
+.frame-content {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  align-items: center;
+  margin-bottom: 1%;
+}
+
+.brief-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.brief-image {
+  height: 88%;
+}
+
+a {
+  text-decoration: underline;
+  color: #160c50;
+}
+
+.review-content,
+.edit-content {
+  text-align: justify;
+  margin: 1% 0;
+}
+
+.detail-prompt {
+  text-align: center;
+  align-items: center;
+}
+
+.detail-subtitle {
+  margin-top: 10%;
+  border-bottom: 1px solid #9895a8;
+}
+
+.nav-bar {
+  position: sticky;
+  top: 0;
+  background-color: rgb(255, 255, 255);
+}
+
+.edit-area-button {
+  width: 10%;
+  margin: 1%;
+}
+
+.button-wrapper {
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.profile-form {
+  border-bottom: 0;
+}
+
+pre {
+  white-space: pre-line;
+  word-wrap: break-word;
+  text-align: left;
+  word-break: break-all;
+}
+
+@media (max-width: 768px) {
+  .brief-frame {
+    width: 70%;
+    margin: 5% 0;
+  }
+
+  .search-button {
+    width: 15%;
+    margin: 0% 1%;
+  }
+
+  .edit-area-button {
+    width: 40%;
+  }
+
+  .first-row-nav-mob {
+    width: 30%;
+  }
+
+  .profile-element {
+    width: 70%;
+  }
+
+  .nav-bar {
+    padding: 0.5 rem 0;
+    margin-bottom: 1rem;
+  }
+
+  .first-row-nav-mob {
+    margin-bottom: 0.5rem;
+  }
+
+  .log-button {
+    margin-bottom: 1rem;
+  }
+
+}

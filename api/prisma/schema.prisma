@@ -18,16 +18,16 @@ model MovieReview {
   authorId  Int
   movie     Movie    @relation(fields: [movieId], references: [id], onDelete: Cascade)
   movieId   Int
-  rating    Int
+  rating    Float
   content   String   @db.Text
 }
 
 model Movie {
-  id           Int           @id @default(autoincrement())
-  movieName    String        @db.VarChar(255)
-  posterPath   String
-  tmdbId       Int           @unique
-  reviews      MovieReview[]
+  id         Int           @id @default(autoincrement())
+  movieName  String        @db.VarChar(255)
+  posterPath String
+  tmdbId     Int           @unique
+  reviews    MovieReview[]
 }
 
 model User {
@@ -36,5 +36,5 @@ model User {
   auth0Id          String        @unique @default("")
   name             String        @default("new member")
   movieReviews     MovieReview[]
-  selfIntroduction String?
+  selfIntroduction String?       @db.Text
 }

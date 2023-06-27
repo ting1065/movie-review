@@ -6,8 +6,8 @@ export default function VisitorNavBar() {
   const { loginWithRedirect } = useAuth0();
 
   return (
-    <>
-      <button onClick={loginWithRedirect}>Log In / Sign Up</button>
-    </>
+    <div className="row">
+      <button className="log-button" onClick={loginWithRedirect}>Log In / Sign Up</button>
+    </div>
   );
 }

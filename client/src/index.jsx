@@ -8,9 +8,8 @@ import {
   Navigate,
 } from "react-router-dom";
 import ErrorPage from "./routes/error-page.jsx";
-import Movies from "./routes/movies.jsx";
+import MoviesPopular from "./routes/movies-popular.jsx";
 import MovieDetail from "./routes/movie-detail";
-import ReviewDetail from "./routes/review-detail";
 import ReviewAdd, { action as addReviewAction } from "./routes/review-add";
 import ReviewEdit, { action as editReviewAction } from "./routes/review-edit";
 import { action as reviewDeleteAction } from "./routes/review-delete";
@@ -27,7 +26,7 @@ import {
   getReviewsFromTmdb,
   getPopularMovies,
   getSearchedMovies,
-} from "./functions";
+} from "./dataFetchFunctions";
 import MoviesReviewed from "./routes/movies-reviewed";
 import MoviesRecommended from "./routes/movies-recommended";
 import MoviesSearched from "./routes/movies-searched";
@@ -78,7 +77,7 @@ const router = createBrowserRouter([
           {
             //popular movies
             index: true,
-            element: <Movies />,
+            element: <MoviesPopular />,
             loader: moviesLoader,
           },
           {
@@ -109,14 +108,6 @@ const router = createBrowserRouter([
             path: "movie/:tmdbId",
             element: <MovieDetail />,
             loader: reviewsLoader,
-          },
-          {
-            path: "review/:reviewId",
-            element: (
-              <RequireAuth>
-                <ReviewDetail />
-              </RequireAuth>
-            ),
           },
           {
             path: "review/add/:tmdbId",
