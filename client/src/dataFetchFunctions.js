@@ -1,5 +1,4 @@
-const tmdbToken =
-  "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJmMDMwODhiZWIwMTA2MmRjMTMzMjY5Y2U5Y2MxY2M0OSIsInN1YiI6IjY0OTM5YjI1YWY2ZTk0MDBhZGVjMTNhYiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.ey1XtAsnN9ZhoYOsoU9YtKHeMjvvcx2fDwcmpqYVHIk";
+const tmdbToken = process.env.TMDB_TOKEN;
 
 //extract a brief json from a single movie's json from tmdb api
 function extractMovieDataBrief(movie) {
