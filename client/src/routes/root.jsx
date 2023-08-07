@@ -31,7 +31,7 @@ export default function Root() {
     (async () => {
       setUserFromDB(await getUserFromDB(accessToken));
     })();
-  }, [accessToken, userFromDB]);
+  }, [accessToken]);
 
   useLayoutEffect(() => {
     window.scrollTo(0, 0);
@@ -59,7 +59,6 @@ export default function Root() {
             type="text"
             name="search"
             placeholder="search a movie"
-            defaultValue=""
           />
           <button className="search-button" type="submit">
             search

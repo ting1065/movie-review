@@ -14,7 +14,7 @@ export default function MemberNavBar() {
         Recommended
       </NavLink>
       <NavLink to="/profile">Profile</NavLink>
-      <NavLink to="/auth-debugger">AuthDegugger</NavLink>
+      <NavLink to="/auth-debugger">AuthDebugger</NavLink>
     </nav>
   );
 }
