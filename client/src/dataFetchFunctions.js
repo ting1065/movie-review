@@ -1,4 +1,4 @@
-const tmdbToken = process.env.TMDB_TOKEN;
+const tmdbToken = process.env.REACT_APP_TMDB_TOKEN;
 
 //extract a brief json from a single movie's json from tmdb api
 function extractMovieDataBrief(movie) {
