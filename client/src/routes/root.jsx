@@ -1,10 +1,12 @@
-import React, { useLayoutEffect } from "react";
+import React, { useEffect, useState, useLayoutEffect } from "react";
 import { Outlet, Form, redirect, useNavigate } from "react-router-dom";
 import MemberNavBar from "../components/MemberNavBar";
 import VisitorNavBar from "../components/VisitorNavBar";
 import WelcomeBar from "../components/WelcomeBar";
 import { useAuth0 } from "@auth0/auth0-react";
 import BackToTopButton from "../components/BackToTopButton";
+import { useAuthToken } from "../AuthTokenContext";
+import { getUserFromDB } from "../dataFetchFunctions";
 
 export async function action({ request }) {
   const formData = await request.formData();
@@ -20,13 +22,20 @@ export async function action({ request }) {
 }
 
 export default function Root() {
+  const { accessToken } = useAuthToken();
+  const [userFromDB, setUserFromDB] = useState(null);
+  const { isAuthenticated } = useAuth0();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    (async () => {
+      setUserFromDB(await getUserFromDB(accessToken));
+    })();
+  }, [accessToken, userFromDB]);
 
   useLayoutEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-
-  const { isAuthenticated } = useAuth0();
 
   return (
     <>
@@ -36,7 +45,7 @@ export default function Root() {
 
       {isAuthenticated ? (
         <>
-          <WelcomeBar />
+          <WelcomeBar userName={userFromDB ? `, ${userFromDB.name}` : ""} />
           <MemberNavBar />
         </>
       ) : (
