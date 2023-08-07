@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useLayoutEffect } from "react";
-import { Outlet, Form, redirect, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import MemberNavBar from "../components/MemberNavBar";
 import VisitorNavBar from "../components/VisitorNavBar";
 import WelcomeBar from "../components/WelcomeBar";
@@ -8,22 +8,11 @@ import BackToTopButton from "../components/BackToTopButton";
 import { useAuthToken } from "../AuthTokenContext";
 import { getUserFromDB } from "../dataFetchFunctions";
 
-export async function action({ request }) {
-  const formData = await request.formData();
-  const searchedName = formData.get("search");
-  if (!searchedName) {
-    return redirect("/");
-  }
-  if (searchedName.length > 30) {
-    alert("search name too long, no more than 30 characters");
-    return redirect("/");
-  }
-  return redirect(`search/${searchedName}`);
-}
 
 export default function Root() {
   const { accessToken } = useAuthToken();
   const [userFromDB, setUserFromDB] = useState(null);
+  const [searchedName, setSearchedName] = useState(""); 
   const { isAuthenticated } = useAuth0();
   const navigate = useNavigate();
 
@@ -36,6 +25,23 @@ export default function Root() {
   useLayoutEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  function searchHandler() {
+    console.log("searched name: ",searchedName);
+    if (!searchedName) {
+      navigate("/");
+      return;
+    }
+    if (searchedName.length > 30) {
+      alert("search name too long, no more than 30 characters");
+      setSearchedName("");
+      navigate("/");
+      return;
+    }
+    const nameToSearch = searchedName;
+    setSearchedName("");
+    navigate(`search/${nameToSearch}`);
+  }
 
   return (
     <>
@@ -53,14 +59,15 @@ export default function Root() {
       )}
 
       <div className="row search-bar">
-        <Form className="search-form" method="post">
+        <div className="search-form" method="post">
           <input
             className="search-input"
             type="text"
-            name="search"
             placeholder="search a movie"
+            value={searchedName}
+            onChange={(e) => setSearchedName(e.target.value)}
           />
-          <button className="search-button" type="submit">
+          <button className="search-button" onClick={() => searchHandler()}>
             search
           </button>
           <button
@@ -70,7 +77,7 @@ export default function Root() {
           >
             home
           </button>
-        </Form>
+        </div>
       </div>
 
       <div className="row">

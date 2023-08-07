@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
-import Root, { action as searchAction } from "./routes/root.jsx";
+import Root from "./routes/root.jsx";
 import {
   createBrowserRouter,
   RouterProvider,
@@ -69,7 +69,6 @@ const router = createBrowserRouter([
     path: "/",
     element: <Root />,
     errorElement: <ErrorPage />,
-    action: searchAction,
     children: [
       {
         errorElement: <></>,
