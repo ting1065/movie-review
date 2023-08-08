@@ -73,6 +73,23 @@ h3 {
   width: 70%;
 }
 
+.review-wrapper {
+  width: 66%;
+  border:1px solid #BBBCBB;
+  padding: 2%;
+  margin-bottom: 2%;
+}
+
+.review-element {
+  width: 100%;
+}
+
+.review-button-wrapper {
+  display: flex;
+  justify-content: space-evenly;
+  width: 100%;
+}
+
 .profile-element {
   width: 51%;
 }
@@ -104,7 +121,7 @@ a {
 .review-content,
 .edit-content {
   text-align: justify;
-  margin: 1% 0;
+  margin: 0;
 }
 
 .detail-prompt {

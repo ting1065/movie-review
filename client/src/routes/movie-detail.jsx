@@ -53,31 +53,33 @@ export default function MovieDetail() {
       </p>
 
       <h3 className="detail-element  detail-subtitle">Your Review</h3>
-      {isAuthenticated ? (
-        userReview ? (
-          <>
-            <p className="detail-element">
-              <strong>Rating:</strong>
-              {` ${userReview.rating.toFixed(1)}`}
-            </p>
-            <p className="detail-element  review-content">
-              <strong>Content:</strong>
-              <br></br>
-              <br></br>
-              {userReview.content}
-              <br></br>
-              <br></br>
-            </p>
-            <EditReviewButton tmdbId={tmdbId ? tmdbId : ""} />
-          </>
+      <div className="review-wrapper">
+        {isAuthenticated ? (
+          userReview ? (
+            <>
+              <p className="review-element">
+                <strong>Rating:</strong>
+                {` ${userReview.rating.toFixed(1)}`}
+              </p>
+              <p className="review-element  review-content">
+                <strong>Content:</strong>
+                <br></br>
+                <br></br>
+                {userReview.content}
+                <br></br>
+                <br></br>
+              </p>
+              <EditReviewButton tmdbId={tmdbId ? tmdbId : ""} />
+            </>
+          ) : (
+            <AddReviewButton tmdbId={tmdbId ? tmdbId : ""} />
+          )
         ) : (
-          <AddReviewButton tmdbId={tmdbId ? tmdbId : ""} />
-        )
-      ) : (
-        <p className="detail-element detail-prompt">
-          login to post your review
-        </p>
-      )}
+          <p className="review-element detail-prompt">
+            login to post your review
+          </p>
+        )}
+      </div>
 
       <h3 className="detail-element  detail-subtitle">
         Reviews From Other Users
@@ -94,19 +96,25 @@ export default function MovieDetail() {
               />
             ))
           ) : (
-            <p className="detail-element detail-prompt">
-              no reviews from other users yet
-            </p>
+            <div className="review-wrapper">
+              <p className="review-element detail-prompt">
+                no reviews from other users yet
+              </p>
+            </div>
           )
         ) : (
-          <p className="detail-element detail-prompt">
-            no reviews from other users yet
-          </p>
+          <div className="review-wrapper">
+            <p className="review-element detail-prompt">
+              no reviews from other users yet
+            </p>
+          </div>
         )
       ) : (
-        <p className="detail-element detail-prompt">
-          login to see what other users say
-        </p>
+        <div className="review-wrapper">
+          <p className="review-element detail-prompt">
+            login to see what other users say
+          </p>
+        </div>
       )}
 
       <h3 className="detail-element detail-subtitle">Reviews From TMDB</h3>

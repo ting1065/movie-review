@@ -3,11 +3,13 @@ import { NavLink } from "react-router-dom";
 
 export default function EditReviewButton({ tmdbId }) {
   return (
-    <NavLink
-      className="detail-element detail-prompt"
-      to={`/review/edit/${tmdbId}`}
-    >
-      <button>update</button>
-    </NavLink>
+    <div className="review-button-wrapper">
+      <NavLink
+        className="detail-prompt"
+        to={`/review/edit/${tmdbId}`}
+      >
+        <button>update</button>
+      </NavLink>
+    </div>
   );
 }
