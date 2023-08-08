@@ -129,14 +129,18 @@ export default function MovieDetail() {
             />
           ))
         ) : (
-          <p className="detail-element detail-prompt">
-            no review on this movie yet
-          </p>
+          <div className="review-wrapper">
+            <p className="review-element detail-prompt">
+              no review on this movie yet
+            </p>
+          </div>
         )
       ) : (
-        <p className="detail-element detail-prompt">
-          no review on this movie yet
-        </p>
+        <div className="review-wrapper">
+          <p className="review-element detail-prompt">
+            no review on this movie yet
+          </p>
+        </div>
       )}
     </>
   );
