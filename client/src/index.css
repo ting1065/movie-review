@@ -32,7 +32,7 @@
 
 h2 {
   text-align: center;
-  width: 80%;
+  width: 100%;
 }
 
 h3 {
@@ -45,7 +45,7 @@ h3 {
 
 .page-desciption {
   text-align: center;
-  width: 80%;
+  width: 100%;
   margin-top: 0;
 }
 
@@ -59,10 +59,14 @@ h3 {
   flex-wrap: wrap;
   flex-direction: row;
   justify-content: center;
-  width: 30%;
+  width: 17%;
   margin: 2% auto;
   padding: 0;
   border: 0px;
+}
+
+.detail-image {
+  width: 31%;
 }
 
 .detail-element {
@@ -149,6 +153,10 @@ pre {
   .search-button {
     width: 15%;
     margin: 0% 1%;
+  }
+
+  .detail-image {
+    width: 50%;
   }
 
   .edit-area-button {

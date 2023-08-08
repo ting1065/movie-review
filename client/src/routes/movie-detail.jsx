@@ -32,7 +32,7 @@ export default function MovieDetail() {
     <>
       <h2>{movie.title}</h2>
       <img
-        className="detail-element"
+        className="detail-image"
         src={`https://image.tmdb.org/t/p/original${movie.posterPath}`}
         alt={movie.title}
       />
@@ -75,7 +75,7 @@ export default function MovieDetail() {
         )
       ) : (
         <p className="detail-element detail-prompt">
-          only a prime member shall enjoy such fancy feature
+          login to post your review
         </p>
       )}
 
@@ -105,7 +105,7 @@ export default function MovieDetail() {
         )
       ) : (
         <p className="detail-element detail-prompt">
-          only a prime member shall enjoy such fancy feature
+          login to see what other users say
         </p>
       )}
 
