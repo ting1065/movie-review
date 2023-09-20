@@ -26,6 +26,7 @@
     <br><img src="./resources/check_review_2.png" alt="Check Review Image" width="500"/>
 
 - **Recommend Movie**: recommend 20 movies based the user's highest rated movie
+
     <br><img src="./resources/recommend_movie.png" alt="Recommend Moive Image" width="500"/>
 
 - **Search Movie**: search a movie by name
